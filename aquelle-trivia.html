@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>aQuellé Trivia</title>
+<style id="quiz-style">
+  :root{
+    --surface:#f4faf9; --surface-card:#ffffff; --surface-raised:#eef7f6;
+    --ink:#0b1f2a; --ink-secondary:#45606b; --ink-muted:#7c9099;
+    --brand-deep:#0b3d5c; --on-brand-deep:#ffffff;
+    --brand-mid:#1c7fa6; --brand-bright:#1fb0c0;
+    --accent-fizz:#eb6834; --on-fizz:#ffffff;
+    --good:#0ca30c; --bad:#d03b3b;
+    --border:rgba(11,31,42,0.12); --shadow:rgba(11,61,92,0.10);
+    --pop-pink:#ef5da8; --pop-yellow:#ffce3d; --pop-purple:#7c5cf2; --pop-lime:#8fd13f;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --surface:#0c1718; --surface-card:#142226; --surface-raised:#1a2c30;
+      --ink:#eef6f7; --ink-secondary:#a9c0c6; --ink-muted:#71898f;
+      --brand-deep:#57bcdd; --on-brand-deep:#052027;
+      --brand-mid:#5fb8d6; --brand-bright:#3fd0dc;
+      --accent-fizz:#f2895c; --on-fizz:#2a1206;
+      --good:#3ad13a; --bad:#e66767;
+      --border:rgba(255,255,255,0.14); --shadow:rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --surface:#0c1718; --surface-card:#142226; --surface-raised:#1a2c30;
+    --ink:#eef6f7; --ink-secondary:#a9c0c6; --ink-muted:#71898f;
+    --brand-deep:#57bcdd; --on-brand-deep:#052027;
+    --brand-mid:#5fb8d6; --brand-bright:#3fd0dc;
+    --accent-fizz:#f2895c; --on-fizz:#2a1206;
+    --good:#3ad13a; --bad:#e66767;
+    --border:rgba(255,255,255,0.14); --shadow:rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:var(--surface); color:var(--ink);
+    font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+    padding:0 16px; padding-block:20px 48px;
+    display:flex; justify-content:center;
+  }
+  h1,h2,h3,.display{ font-family:"Baloo 2","Manrope",system-ui,sans-serif; text-wrap:balance; }
+  #app{ width:100%; max-width:560px; }
+  .hero{
+    background:linear-gradient(120deg,var(--brand-deep),var(--brand-mid) 45%,var(--brand-bright) 80%,var(--accent-fizz));
+    background-size:280% 280%;
+    animation:heroGradient 10s ease infinite, heroPop .5s cubic-bezier(.22,1,.36,1) both;
+    color:#fff; border-radius:22px; padding:28px 24px 34px;
+    position:relative; overflow:hidden; box-shadow:0 12px 30px var(--shadow);
+  }
+  .bubble-field{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+  .bubble{
+    position:absolute; bottom:-24px; border-radius:50%;
+    background:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.5);
+    box-shadow:inset -2px -2px 4px rgba(11,31,42,0.12), inset 2px 2px 3px rgba(255,255,255,0.6);
+    animation:bubbleUp linear infinite;
+  }
+  .hero .kicker{
+    font-size:12px; letter-spacing:.08em; text-transform:uppercase; font-weight:800;
+    display:inline-block; background:rgba(255,255,255,.22); padding:5px 12px; border-radius:999px;
+    position:relative; z-index:1;
+  }
+  .hero h1{ font-size:30px; margin:10px 0 8px; line-height:1.1; position:relative; z-index:1; }
+  .hero p{ margin:0; opacity:.94; font-size:15px; line-height:1.5; position:relative; z-index:1; }
+  .wave{ display:block; width:100%; height:28px; margin-top:18px; position:relative; z-index:1; }
+  .card{
+    background:var(--surface-card); border:1px solid var(--border);
+    border-radius:18px; padding:22px; margin-top:18px;
+    box-shadow:0 6px 18px var(--shadow);
+    animation:cardPop .4s cubic-bezier(.28,1.4,.5,1) both;
+  }
+  @keyframes heroGradient{
+    0%{ background-position:0% 50%; }
+    50%{ background-position:100% 50%; }
+    100%{ background-position:0% 50%; }
+  }
+  @keyframes heroPop{
+    from{ opacity:0; transform:translateY(-8px) scale(.98); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  @keyframes cardPop{
+    from{ opacity:0; transform:translateY(12px) scale(.985); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  @keyframes bubbleUp{
+    from{ transform:translateY(0) translateX(0); opacity:0; }
+    12%{ opacity:1; }
+    88%{ opacity:.85; }
+    to{ transform:translateY(-240px) translateX(10px); opacity:0; }
+  }
+  .field label{ display:block; font-size:13px; font-weight:700; color:var(--ink-secondary); margin-bottom:6px; }
+  .textlist{ display:flex; flex-direction:column; gap:12px; }
+  input[type="text"]{
+    width:100%; padding:13px 14px; border-radius:12px; border:1.5px solid var(--border);
+    background:var(--surface-raised); color:var(--ink); font-size:16px; font-family:inherit;
+  }
+  input[type="text"]:focus{ outline:2px solid var(--brand-bright); outline-offset:1px; }
+  .btn{
+    appearance:none; border:none; cursor:pointer; font-family:inherit; font-weight:800;
+    font-size:15px; border-radius:12px; padding:13px 20px; display:inline-flex; align-items:center;
+    justify-content:center; gap:8px; transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{ transform:scale(.96); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-primary{
+    background:linear-gradient(120deg,var(--brand-deep),var(--brand-mid) 60%,var(--brand-bright));
+    background-size:180% 180%; color:var(--on-brand-deep); width:100%;
+  }
+  .btn-primary:not(:disabled):hover{ transform:translateY(-2px); box-shadow:0 8px 18px var(--shadow); background-position:100% 0; }
+  .btn-ghost{ background:transparent; color:var(--brand-mid); border:1.5px solid var(--border); }
+  .btn-ghost:not(:disabled):hover{ transform:translateY(-2px); border-color:var(--brand-mid); }
+  .row-between{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:16px; }
+  .progress-wrap{ display:flex; align-items:center; gap:10px; margin:18px 2px 0; }
+  .progress-track{ flex:1; height:8px; border-radius:6px; background:var(--border); overflow:hidden; }
+  .progress-fill{
+    height:100%; border-radius:6px; transition:width .35s cubic-bezier(.22,1,.36,1); position:relative; overflow:hidden;
+    background:linear-gradient(90deg,var(--brand-bright),var(--pop-purple));
+  }
+  .progress-fill::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+    animation:shimmer 1.6s linear infinite;
+  }
+  @keyframes shimmer{ from{ transform:translateX(-100%); } to{ transform:translateX(100%); } }
+  .progress-label{ font-size:12px; font-weight:700; color:var(--ink-muted); white-space:nowrap; }
+  .q-eyebrow{ font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--brand-mid); }
+  .q-text{ font-size:20px; font-weight:700; margin:6px 0 18px; line-height:1.3; }
+  .opt-list{ display:flex; flex-direction:column; gap:10px; }
+  .opt{
+    display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:14px;
+    border:1.5px solid var(--border); background:var(--surface-raised); cursor:pointer; text-align:left;
+    font-family:inherit; font-size:15px; color:var(--ink); font-weight:600;
+    transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+  }
+  .opt:hover{ transform:translateY(-1px); box-shadow:0 4px 12px var(--shadow); }
+  .opt .dot{ width:20px; height:20px; border-radius:50%; border:2px solid var(--border); flex:none; position:relative; }
+  .opt.selected{
+    border-color:var(--brand-mid); background:color-mix(in srgb, var(--brand-mid) 12%, var(--surface-raised));
+    animation:optPop .28s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes optPop{ 0%{ transform:scale(1); } 45%{ transform:scale(1.035); } 100%{ transform:scale(1); } }
+  .opt.selected .dot{ border-color:var(--brand-deep); }
+  .opt.selected .dot::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--brand-deep); }
+  .swatch{ width:10px; height:10px; border-radius:50%; flex:none; display:inline-block; }
+  .match-tray{ display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:var(--surface-raised); border-radius:14px; margin-bottom:16px; min-height:44px; }
+  .match-tile{
+    padding:9px 14px; border-radius:999px; border:1.5px solid var(--border); background:var(--surface-card);
+    font-weight:800; font-size:13px; cursor:grab; color:var(--brand-deep); touch-action:none;
+    box-shadow:0 2px 6px var(--shadow); user-select:none; display:flex; align-items:center; gap:7px;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .match-tile:hover{ transform:translateY(-2px) rotate(-1deg); box-shadow:0 6px 14px var(--shadow); }
+  .match-tile.selected{
+    border-color:var(--brand-deep); background:color-mix(in srgb, var(--brand-mid) 18%, var(--surface-card));
+    animation:optPop .28s cubic-bezier(.34,1.56,.64,1);
+  }
+  .match-tray-empty{ font-size:13px; color:var(--ink-muted); font-weight:600; }
+  .match-slot-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
+  .match-slot-row:last-child{ border-bottom:none; }
+  .match-slot-row .prod{ flex:1; font-weight:700; font-size:13.5px; line-height:1.3; }
+  .match-slot{
+    flex:none; width:112px; min-height:38px; border-radius:10px; border:1.5px dashed var(--border);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:6px 8px;
+    font-size:12.5px; font-weight:700; color:var(--ink-muted); text-align:center; touch-action:none;
+  }
+  .match-slot.filled{
+    border-style:solid; border-color:var(--brand-mid); color:var(--brand-deep);
+    background:color-mix(in srgb, var(--brand-mid) 10%, var(--surface-card));
+    animation:optPop .28s cubic-bezier(.34,1.56,.64,1);
+  }
+  .order-slots{ display:flex; flex-direction:column; gap:8px; margin-top:14px; min-height:40px; }
+  .order-slot{
+    display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px;
+    background:var(--surface-raised); border:1px dashed var(--border); font-size:14px; font-weight:700;
+    cursor:pointer; touch-action:none;
+  }
+  .order-slot .num{ color:var(--ink-muted); font-size:12px; width:18px; flex:none; }
+  .order-slot.filled{
+    border-style:solid; border-color:var(--brand-mid); background:color-mix(in srgb, var(--brand-mid) 8%, var(--surface-raised));
+    animation:optPop .28s cubic-bezier(.34,1.56,.64,1);
+  }
+  .drop-target.drag-over{ outline:3px solid var(--brand-bright); outline-offset:2px; animation:dragPulse .6s ease infinite; }
+  @keyframes dragPulse{ 0%,100%{ outline-color:var(--brand-bright); } 50%{ outline-color:var(--pop-purple); } }
+  .hint{ font-size:13px; color:var(--ink-muted); margin-top:10px; line-height:1.5; }
+  .result-score{ text-align:center; padding:14px 0 4px; }
+  .result-score .big{
+    font-size:56px; font-weight:800; font-family:"Baloo 2",sans-serif;
+    background:linear-gradient(120deg,var(--brand-deep),var(--brand-mid),var(--pop-purple));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    line-height:1; display:inline-block; animation:scorePop .5s cubic-bezier(.28,1.6,.5,1) both;
+  }
+  .result-score .of{ color:var(--ink-muted); font-weight:700; font-size:16px; }
+  @keyframes scorePop{ from{ opacity:0; transform:scale(.6) translateY(8px); } to{ opacity:1; transform:scale(1) translateY(0); } }
+  .screenshot-note{
+    display:flex; align-items:center; gap:10px; background:var(--surface-raised); border-radius:14px;
+    padding:14px 16px; margin-top:18px; font-size:14px; font-weight:700; color:var(--brand-deep);
+  }
+  .screenshot-note .emoji{ font-size:22px; flex:none; display:inline-block; animation:emojiBounce 1.8s ease-in-out infinite; }
+  @keyframes emojiBounce{ 0%,100%{ transform:translateY(0) rotate(0deg); } 50%{ transform:translateY(-4px) rotate(-8deg); } }
+  .confetti-layer{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+  .confetti-piece{ position:absolute; top:-14px; opacity:1; border-radius:2px; animation:confettiFall ease-in forwards; }
+  @keyframes confettiFall{
+    0%{ transform:translateY(0) translateX(0) rotate(0deg); opacity:1; }
+    75%{ opacity:1; }
+    100%{ transform:translateY(280px) translateX(var(--drift, 20px)) rotate(480deg); opacity:0; }
+  }
+  .review-item{ padding:14px 0; border-bottom:1px solid var(--border); }
+  .review-item:last-child{ border-bottom:none; }
+  .review-q{ font-weight:700; font-size:14.5px; margin-bottom:6px; }
+  .review-line{ display:flex; gap:8px; font-size:13.5px; align-items:flex-start; margin-top:3px; }
+  .badge{ flex:none; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:#fff; margin-top:1px; }
+  .badge.good{ background:var(--good); }
+  .badge.bad{ background:var(--bad); }
+  .link-btn{ background:none; border:none; color:var(--brand-mid); font-weight:700; font-size:13.5px; cursor:pointer; padding:0; font-family:inherit; }
+  .center{ text-align:center; }
+  .muted{ color:var(--ink-muted); font-size:13px; }
+  [hidden]{ display:none!important; }
+  @media (max-width: 420px){
+    .match-slot{ width:92px; font-size:11.5px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{ animation-duration:.001ms!important; animation-iteration-count:1!important; transition-duration:.001ms!important; }
+    .hero{ animation:none; }
+    .bubble, .confetti-piece{ display:none!important; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+  "use strict";
+
+  var HOST_NAME = "Estelle";
+
+  var SHELF_TILES = [
+    { id:"t5-1", label:"5 months" },
+    { id:"t5-2", label:"5 months" },
+    { id:"t5-3", label:"5 months" },
+    { id:"t6-1", label:"6 months" },
+    { id:"t6-2", label:"6 months" },
+    { id:"t8-1", label:"8 months" },
+    { id:"t8-2", label:"8 months" },
+    { id:"t18-1", label:"18 months" }
+  ];
+
+  var FLOW_TILES = [
+    { id:"Naartjie", label:"Naartjie", color:"#f2a341" },
+    { id:"Honey Melon", label:"Honey Melon", color:"#d8db6a" },
+    { id:"Strawberry", label:"Strawberry", color:"#d94f4f" },
+    { id:"Litchi", label:"Litchi", color:"#e8748f" },
+    { id:"Mango", label:"Mango", color:"#f2994a" },
+    { id:"Marula", label:"Marula", color:"#b07a3f" },
+    { id:"Granadilla", label:"Granadilla", color:"#e8a33d" },
+    { id:"Apple", label:"Apple", color:"#7cb342" },
+    { id:"Lemon", label:"Lemon", color:"#e3cf3f" },
+    { id:"Watermelon", label:"Watermelon", color:"#e8607a" },
+    { id:"Pineapple", label:"Pineapple", color:"#f0c419" }
+  ];
+
+  var FLAVOUR_ORDER = ["Naartjie","Litchi","Strawberry","Granadilla","Lemon","Pineapple","Watermelon","Apple","Marula","Honey Melon"];
+
+  var QUESTIONS = [
+    { id:"q1", type:"text", eyebrow:"Question 1 of 10", short:"Longest still flavour name",
+      text:"Type the flavour with the longest name in the Still Flavoured range.",
+      correct:"Blueberry-Raspberry", points:1 },
+    { id:"q2", type:"text", eyebrow:"Question 2 of 10", short:"Shortest still flavour name",
+      text:"And type the flavour with the shortest name in the Still Flavoured range.",
+      correct:"Lemon-Mint", points:1 },
+    { id:"q3", type:"mcq", eyebrow:"Question 3 of 10", short:"BPA free?",
+      text:"Are aQuellé bottles BPA free?",
+      options:["Yes","No"],
+      correct:"Yes", points:1 },
+    { id:"q4", type:"mcq", eyebrow:"Question 4 of 10", short:"Vitamin in Peach-Apricot Stil 750ml",
+      text:"Which vitamin is added to aQuellé Peach-Apricot Stil 750ml?",
+      options:["Vitamin B+","Vitamin C","Vitamin D","Vitamin A"],
+      correct:"Vitamin B+", points:1 },
+    { id:"q5", type:"textlist", eyebrow:"Question 5 of 10", short:"Berry flavours",
+      text:"Name 5 flavours with the word “berry” in the name.",
+      count:5,
+      accepted:[["Pinberry"],["Berry Blue"],["Strawberry"],["Cranberry Burst","Cranberry"],["Blueberry-Raspberry"]],
+      points:5 },
+    { id:"q6", type:"mcq", eyebrow:"Question 6 of 10", short:"Fastest growing SKU",
+      text:"Which SKU is the fastest growing?",
+      options:["aQuellé Natural Still 1.5L","aQuellé Natural Sparkling 1.5L","aQuellé Natural Still 500ml","aQuellé Natural Sparkling 500ml"],
+      correct:"aQuellé Natural Sparkling 1.5L", points:1 },
+    { id:"q7", type:"text", eyebrow:"Question 7 of 10", short:"ViV flavour that's not a fruit",
+      text:"I am not a fruit, but I am a ViV flavour. Who am I?",
+      correct:"Power", points:1 },
+    { id:"q8", type:"match", eyebrow:"Question 8 of 10", short:"Shelf life matching",
+      text:"Drag each shelf life onto the product it belongs to.",
+      tiles: SHELF_TILES,
+      rows:[
+        { label:"Still Natural Spring Water", correct:"18 months" },
+        { label:"Sparkling Natural Spring Water 330ml", correct:"5 months" },
+        { label:"Sparkling Natural Spring Water 500ml", correct:"5 months" },
+        { label:"Sparkling Natural Spring Water 1.5L", correct:"6 months" },
+        { label:"Sparkling Flavoured Drinks 500ml", correct:"5 months" },
+        { label:"Sparkling Flavoured Drinks 1.5L", correct:"6 months" },
+        { label:"Still Flavoured Drinks 750ml", correct:"8 months" },
+        { label:"ViV Power & Sports Drinks 500ml", correct:"8 months" }
+      ],
+      points:8 },
+    { id:"q9", type:"mcq", eyebrow:"Question 9 of 10", short:"Bottle plastic type",
+      text:"What type of plastic are aQuellé bottles made from?",
+      options:["PET1","HDPE","PVC","PP"],
+      correct:"PET1", points:1 },
+    { id:"q10", type:"flow", eyebrow:"Question 10 of 10", short:"Sparkling flavour line-up",
+      text:"Drag all 11 Sparkling Flavoured flavours into the order they appear in the line-up — get Mango's spot exactly right for a bonus point.",
+      tiles: FLOW_TILES,
+      correctOrder: FLAVOUR_ORDER,
+      bonusLabel: "Mango",
+      bonusPosition: 5,
+      points:10 }
+  ];
+
+  var MAX_SCORE = QUESTIONS.reduce(function(s,q){ return s + q.points; }, 0);
+  var RESULT_KEY = "aquelle_trivia_result_v6";
+
+  function esc(s){
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : String(s);
+    return d.innerHTML;
+  }
+  function normText(s){ return (s||"").toLowerCase().replace(/[\s-]+/g,""); }
+  function tileByIdIn(tiles, id){ return tiles.filter(function(t){ return t.id === id; })[0]; }
+  function matchedAcceptedIndexes(accepted, values){
+    var acceptedNorm = accepted.map(function(group){ return group.map(normText); });
+    var matched = {};
+    (values || []).forEach(function(v){
+      var nv = normText(v);
+      if (!nv) return;
+      acceptedNorm.forEach(function(group, idx){
+        if (group.indexOf(nv) !== -1) matched[idx] = true;
+      });
+    });
+    return Object.keys(matched).map(Number);
+  }
+  function acceptedDisplay(accepted){
+    return accepted.map(function(group){ return group.join(" / "); }).join(", ");
+  }
+
+  function scoreResponse(answers){
+    var score = 0, bonus = 0;
+    QUESTIONS.forEach(function(q){
+      if (q.type === "mcq"){
+        if (answers[q.id] === q.correct) score += q.points;
+      } else if (q.type === "text"){
+        if (normText(answers[q.id]) === normText(q.correct)) score += q.points;
+      } else if (q.type === "textlist"){
+        score += matchedAcceptedIndexes(q.accepted, answers[q.id]).length;
+      } else if (q.type === "match"){
+        var placements = answers[q.id] || {};
+        q.rows.forEach(function(r,i){
+          var tile = tileByIdIn(q.tiles, placements[i]);
+          if (tile && tile.label === r.correct) score += 1;
+        });
+      } else if (q.type === "flow"){
+        var placements2 = answers[q.id] || {};
+        var seq = [];
+        for (var i = 0; i < q.tiles.length; i++){
+          var t = tileByIdIn(q.tiles, placements2[i]);
+          seq.push(t ? t.label : null);
+        }
+        var reduced = seq.filter(function(label){ return label !== q.bonusLabel; });
+        q.correctOrder.forEach(function(label,i){ if (reduced[i] === label) score += 1; });
+        if (seq[q.bonusPosition - 1] === q.bonusLabel){
+          bonus = 1;
+        }
+      }
+    });
+    return { score: score, bonus: bonus };
+  }
+
+  function saveResult(r){ try{ localStorage.setItem(RESULT_KEY, JSON.stringify(r)); }catch(e){} }
+  function loadResult(){ try{ var raw = localStorage.getItem(RESULT_KEY); return raw ? JSON.parse(raw) : null; }catch(e){ return null; } }
+
+  // ---------- app shell ----------
+  var app = document.getElementById("app");
+  var view = "landing";
+  var participantName = "";
+  var qIndex = 0;
+  var workingAnswers = {};
+  var selectedTileId = null;
+
+  function render(){
+    if (view === "landing") return renderLanding();
+    if (view === "quiz") return renderQuiz();
+    if (view === "results") return renderResults();
+  }
+
+  function renderWave(){
+    return '<svg class="wave" viewBox="0 0 300 24" preserveAspectRatio="none" aria-hidden="true">' +
+      '<path d="M0 12 Q 25 24 50 12 T 100 12 T 150 12 T 200 12 T 250 12 T 300 12 V24 H0 Z" fill="rgba(255,255,255,0.16)"/>' +
+      '</svg>';
+  }
+
+  function renderBubbles(){
+    var n = 9, html = '<div class="bubble-field" aria-hidden="true">';
+    for (var i = 0; i < n; i++){
+      var size = 14 + Math.round(Math.random()*26);
+      var left = Math.round(Math.random()*92);
+      var dur = (6 + Math.random()*5).toFixed(1);
+      var delay = (Math.random()*dur).toFixed(1);
+      html += '<span class="bubble" style="left:' + left + '%; width:' + size + 'px; height:' + size + 'px; animation-duration:' + dur + 's; animation-delay:-' + delay + 's;"></span>';
+    }
+    return html + '</div>';
+  }
+
+  function renderConfetti(){
+    var colors = ["var(--pop-pink)","var(--pop-yellow)","var(--pop-purple)","var(--pop-lime)","var(--accent-fizz)","#ffffff"];
+    var n = 32, html = '<div class="confetti-layer" aria-hidden="true">';
+    for (var i = 0; i < n; i++){
+      var left = Math.round(Math.random()*100);
+      var size = 7 + Math.round(Math.random()*7);
+      var color = colors[i % colors.length];
+      var delay = (Math.random()*0.5).toFixed(2);
+      var dur = (2.2 + Math.random()*1.2).toFixed(2);
+      var rot = Math.round(Math.random()*40 - 20);
+      var drift = Math.round(Math.random()*80 - 40);
+      html += '<span class="confetti-piece" style="left:' + left + '%; width:' + size + 'px; height:' + Math.round(size*1.7) + 'px; background:' + color + '; animation-delay:' + delay + 's; animation-duration:' + dur + 's; transform:rotate(' + rot + 'deg); --drift:' + drift + 'px;"></span>';
+    }
+    return html + '</div>';
+  }
+
+  function animateCount(el, target, duration){
+    if (!el) return;
+    var start = 0, startTime = null;
+    function step(ts){
+      if (startTime === null) startTime = ts;
+      var progress = Math.min(1, (ts - startTime) / duration);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(start + (target - start) * eased);
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function renderLanding(){
+    var existing = loadResult();
+    app.innerHTML =
+      '<div class="hero">' +
+        renderBubbles() +
+        '<div class="kicker">Team trivia</div>' +
+        '<h1 class="display">aQuellé Trivia Challenge</h1>' +
+        '<p>10 questions on flavours, facts and figures from the aQuellé range. Takes about 5 minutes — screenshot your score at the end and send it to us.</p>' +
+        renderWave() +
+      '</div>' +
+      '<div class="card">' +
+        (existing ?
+          ('<p style="margin-top:0;">Welcome back, <strong>' + esc(existing.name) + '</strong> — looks like you’ve already played on this device.</p>' +
+           '<button class="btn btn-primary" id="btn-myresults">See your results again</button>' +
+           '<div class="center" style="margin-top:12px;"><button class="link-btn" id="btn-different">Play again as someone else</button></div>')
+          :
+          ('<div class="field"><label for="name-input">Your name</label>' +
+           '<input type="text" id="name-input" placeholder="e.g. Estelle" value="' + esc(participantName) + '" maxlength="60" autocomplete="off">' +
+           '</div>' +
+           '<button class="btn btn-primary" style="margin-top:14px;" id="btn-start">Start the quiz</button>')
+        ) +
+      '</div>';
+
+    var nameInput = document.getElementById("name-input");
+    if (nameInput){
+      nameInput.addEventListener("input", function(){ participantName = nameInput.value; });
+      nameInput.addEventListener("keydown", function(e){ if (e.key === "Enter") startQuiz(); });
+    }
+    var btnStart = document.getElementById("btn-start");
+    if (btnStart) btnStart.addEventListener("click", startQuiz);
+    var btnMy = document.getElementById("btn-myresults");
+    if (btnMy) btnMy.addEventListener("click", function(){ view = "results"; render(); });
+    var btnDiff = document.getElementById("btn-different");
+    if (btnDiff) btnDiff.addEventListener("click", function(){ try{ localStorage.removeItem(RESULT_KEY); }catch(e){} render(); });
+  }
+
+  function startQuiz(){
+    var name = (participantName || "").trim();
+    if (!name) return;
+    participantName = name;
+    workingAnswers = {};
+    qIndex = 0;
+    selectedTileId = null;
+    view = "quiz";
+    render();
+  }
+
+  function slotCountFor(q){
+    if (q.type === "match" || q.type === "flow") return q.tiles.length;
+    return 0;
+  }
+
+  function currentQuestionAnswered(q){
+    var a = workingAnswers[q.id];
+    if (q.type === "mcq") return !!a;
+    if (q.type === "text") return !!(a && a.trim());
+    if (q.type === "match" || q.type === "flow"){
+      return Object.keys(a || {}).length === slotCountFor(q);
+    }
+    if (q.type === "textlist"){
+      return !!(a && a.some(function(v){ return v && v.trim(); }));
+    }
+    return false;
+  }
+
+  function placeTile(q, tileId, slotIndex){
+    var placements = workingAnswers[q.id] || {};
+    Object.keys(placements).forEach(function(k){ if (placements[k] === tileId) delete placements[k]; });
+    placements[slotIndex] = tileId;
+    workingAnswers[q.id] = placements;
+    render();
+  }
+
+  function renderDragQuestion(q){
+    var placements = workingAnswers[q.id] || {};
+    var placedIds = {};
+    Object.keys(placements).forEach(function(k){ placedIds[placements[k]] = true; });
+    var trayTiles = q.tiles.filter(function(t){ return !placedIds[t.id]; });
+    var trayHtml = '<div class="match-tray">' + (trayTiles.length ? trayTiles.map(function(t){
+      return '<div class="match-tile' + (selectedTileId === t.id ? " selected" : "") + '" data-tile-id="' + esc(t.id) + '">' +
+        (t.color ? ('<span class="swatch" style="background:' + t.color + '"></span>') : '') + esc(t.label) + '</div>';
+    }).join("") : '<span class="match-tray-empty">All placed — tap a filled slot to swap one out.</span>') + '</div>';
+
+    var slotsHtml;
+    if (q.type === "match"){
+      slotsHtml = q.rows.map(function(r,i){
+        var placedTile = tileByIdIn(q.tiles, placements[i]);
+        return '<div class="match-slot-row"><div class="prod">' + esc(r.label) + '</div>' +
+          '<div class="match-slot drop-target' + (placedTile ? " filled" : "") + '" data-slot="' + i + '">' + (placedTile ? esc(placedTile.label) : "Drop here") + '</div></div>';
+      }).join("");
+    } else {
+      slotsHtml = '<div class="order-slots">' + q.tiles.map(function(_,i){
+        var placedTile = tileByIdIn(q.tiles, placements[i]);
+        return '<div class="order-slot drop-target' + (placedTile ? " filled" : "") + '" data-slot="' + i + '"><span class="num">' + (i+1) + '</span>' +
+          (placedTile ? ('<span style="flex:1; display:flex; align-items:center; gap:7px;">' + (placedTile.color ? ('<span class="swatch" style="background:' + placedTile.color + '"></span>') : '') + esc(placedTile.label) + '</span>') : '<span class="muted">Drop here</span>') +
+          '</div>';
+      }).join("") + '</div>';
+    }
+
+    var hint = q.type === "match" ?
+      "Drag a shelf life onto its product, or tap one then tap the product — tap a filled slot to send it back." :
+      "Drag each flavour into its position, or tap one then tap a slot — tap a filled slot to send it back.";
+    return trayHtml + slotsHtml + '<p class="hint">' + hint + '</p>';
+  }
+
+  function renderQuiz(){
+    var q = QUESTIONS[qIndex];
+    var total = QUESTIONS.length;
+    var pct = Math.round((qIndex / total) * 100);
+    var isLast = qIndex === total - 1;
+    var answered = currentQuestionAnswered(q);
+
+    var body = "";
+    if (q.type === "mcq"){
+      body = '<div class="opt-list">' + q.options.map(function(opt){
+        var sel = workingAnswers[q.id] === opt;
+        return '<button type="button" class="opt' + (sel ? " selected" : "") + '" data-opt="' + esc(opt) + '"><span class="dot"></span>' + esc(opt) + '</button>';
+      }).join("") + '</div>';
+    } else if (q.type === "text"){
+      body = '<input type="text" id="text-answer" placeholder="Type the flavour name…" value="' + esc(workingAnswers[q.id] || "") + '" autocomplete="off" autocapitalize="words">';
+    } else if (q.type === "match" || q.type === "flow"){
+      body = renderDragQuestion(q);
+    } else if (q.type === "textlist"){
+      var listVals = workingAnswers[q.id] || [];
+      var rows = "";
+      for (var ti = 0; ti < q.count; ti++){
+        rows += '<div class="field textlist-field"><label for="tl-' + ti + '">Flavour ' + (ti+1) + '</label>' +
+          '<input type="text" id="tl-' + ti + '" data-tl-index="' + ti + '" placeholder="Type a flavour…" value="' + esc(listVals[ti] || "") + '" autocomplete="off" autocapitalize="words"></div>';
+      }
+      body = '<div class="textlist">' + rows + '</div>';
+    }
+
+    app.innerHTML =
+      '<div class="card" style="margin-top:0;">' +
+        '<div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+        '<span class="progress-label">' + (qIndex+1) + ' / ' + total + '</span></div>' +
+        '<div class="q-eyebrow" style="margin-top:16px;">' + esc(q.eyebrow) + '</div>' +
+        '<div class="q-text">' + esc(q.text) + '</div>' +
+        body +
+        '<div class="row-between">' +
+          '<button class="btn btn-ghost" id="btn-back"' + (qIndex === 0 ? " disabled" : "") + '>Back</button>' +
+          '<button class="btn btn-primary" style="flex:1;" id="btn-next"' + (answered ? "" : " disabled") + '>' + (isLast ? "See my score" : "Next") + '</button>' +
+        '</div>' +
+      '</div>';
+
+    if (q.type === "mcq"){
+      Array.prototype.forEach.call(app.querySelectorAll("[data-opt]"), function(btn){
+        btn.addEventListener("click", function(){ workingAnswers[q.id] = btn.getAttribute("data-opt"); render(); });
+      });
+    } else if (q.type === "text"){
+      var inputEl = document.getElementById("text-answer");
+      if (inputEl){
+        inputEl.focus();
+        var v = inputEl.value; inputEl.value = ""; inputEl.value = v; // caret to end
+        inputEl.addEventListener("input", function(){
+          workingAnswers[q.id] = inputEl.value;
+          var nb = document.getElementById("btn-next");
+          if (nb) nb.disabled = !currentQuestionAnswered(q);
+        });
+        inputEl.addEventListener("keydown", function(e){
+          if (e.key === "Enter"){
+            e.preventDefault();
+            var nb = document.getElementById("btn-next");
+            if (nb && !nb.disabled) nb.click();
+          }
+        });
+      }
+    } else if (q.type === "match" || q.type === "flow"){
+      Array.prototype.forEach.call(app.querySelectorAll(".match-tile"), function(el){
+        el.addEventListener("pointerdown", function(e){ onDragTileDown(e, el, q); });
+      });
+      Array.prototype.forEach.call(app.querySelectorAll(".drop-target"), function(el){
+        el.addEventListener("click", function(){ onDragSlotClick(el, q); });
+      });
+    } else if (q.type === "textlist"){
+      var firstTl = document.getElementById("tl-0");
+      if (firstTl) firstTl.focus();
+      Array.prototype.forEach.call(app.querySelectorAll("[data-tl-index]"), function(inp){
+        inp.addEventListener("input", function(){
+          var idx = parseInt(inp.getAttribute("data-tl-index"), 10);
+          var list = workingAnswers[q.id] || [];
+          list[idx] = inp.value;
+          workingAnswers[q.id] = list;
+          var nb = document.getElementById("btn-next");
+          if (nb) nb.disabled = !currentQuestionAnswered(q);
+        });
+      });
+    }
+
+    document.getElementById("btn-back").addEventListener("click", function(){
+      if (qIndex > 0){ selectedTileId = null; qIndex -= 1; render(); }
+    });
+    document.getElementById("btn-next").addEventListener("click", function(){
+      if (!currentQuestionAnswered(q)) return;
+      if (isLast){ finishQuiz(); }
+      else { selectedTileId = null; qIndex += 1; render(); }
+    });
+  }
+
+  function onDragTileDown(e, el, q){
+    e.preventDefault();
+    var tileId = el.getAttribute("data-tile-id");
+    var startX = e.clientX, startY = e.clientY;
+    var moved = false;
+    var ghost = null;
+
+    function clearDragOver(){
+      Array.prototype.forEach.call(app.querySelectorAll(".drop-target"), function(s){ s.classList.remove("drag-over"); });
+    }
+    function onMove(ev){
+      var dx = ev.clientX - startX, dy = ev.clientY - startY;
+      if (!moved && (Math.abs(dx) > 6 || Math.abs(dy) > 6)){
+        moved = true;
+        ghost = el.cloneNode(true);
+        ghost.style.position = "fixed";
+        ghost.style.pointerEvents = "none";
+        ghost.style.zIndex = "50";
+        ghost.style.opacity = "0.92";
+        ghost.style.width = el.offsetWidth + "px";
+        ghost.style.left = "0px"; ghost.style.top = "0px";
+        document.body.appendChild(ghost);
+        el.style.opacity = "0.3";
+      }
+      if (moved && ghost){
+        ghost.style.transform = "translate(" + (ev.clientX - ghost.offsetWidth/2) + "px, " + (ev.clientY - ghost.offsetHeight/2) + "px)";
+        clearDragOver();
+        var target = document.elementFromPoint(ev.clientX, ev.clientY);
+        var slotEl = target && target.closest ? target.closest(".drop-target") : null;
+        if (slotEl) slotEl.classList.add("drag-over");
+      }
+    }
+    function onUp(ev){
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      if (ghost) ghost.remove();
+      el.style.opacity = "";
+      clearDragOver();
+      if (moved){
+        var target = document.elementFromPoint(ev.clientX, ev.clientY);
+        var slotEl = target && target.closest ? target.closest(".drop-target") : null;
+        if (slotEl){
+          placeTile(q, tileId, parseInt(slotEl.getAttribute("data-slot"), 10));
+        }
+      } else {
+        selectedTileId = (selectedTileId === tileId) ? null : tileId;
+        render();
+      }
+    }
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp, { once: true });
+  }
+
+  function onDragSlotClick(el, q){
+    var slotIndex = parseInt(el.getAttribute("data-slot"), 10);
+    var placements = workingAnswers[q.id] || {};
+    if (selectedTileId){
+      placeTile(q, selectedTileId, slotIndex);
+      selectedTileId = null;
+    } else if (placements[slotIndex]){
+      delete placements[slotIndex];
+      workingAnswers[q.id] = placements;
+      render();
+    }
+  }
+
+  function finishQuiz(){
+    var sr = scoreResponse(workingAnswers);
+    var response = {
+      name: participantName,
+      submittedAt: new Date().toISOString(),
+      answers: workingAnswers,
+      score: sr.score,
+      maxScore: MAX_SCORE,
+      bonus: sr.bonus
+    };
+    saveResult(response);
+    view = "results";
+    render();
+  }
+
+  function renderResults(){
+    var resp = loadResult();
+    if (!resp){ view = "landing"; render(); return; }
+    var total = resp.score + (resp.bonus || 0);
+    var totalMax = resp.maxScore + 1;
+    var pct = Math.round((total / totalMax) * 100);
+    var answers = resp.answers || {};
+
+    var review = QUESTIONS.map(function(q){
+      var lines = "";
+      if (q.type === "mcq" || q.type === "text"){
+        var got = answers[q.id];
+        var ok = q.type === "text" ? (normText(got) === normText(q.correct)) : (got === q.correct);
+        lines = '<div class="review-line"><span class="badge ' + (ok?"good":"bad") + '">' + (ok?"✓":"✕") + '</span><span>Your answer: <strong>' + esc(got||"—") + '</strong>' + (ok?"":(' — correct: <strong>' + esc(q.correct) + '</strong>')) + '</span></div>';
+      } else if (q.type === "textlist"){
+        var vals = (answers[q.id] || []).filter(function(v){ return v && v.trim(); });
+        var matchedIdx = matchedAcceptedIndexes(q.accepted, vals);
+        lines = (vals.length ?
+          ('<div class="review-line"><span>Your answers: <strong>' + esc(vals.join(", ")) + '</strong></span></div>') :
+          ('<div class="review-line"><span>Your answers: <strong>—</strong></span></div>')) +
+          '<div class="hint">' + matchedIdx.length + ' / ' + q.accepted.length + ' correct.</div>' +
+          '<div class="hint">Accepted answers: ' + acceptedDisplay(q.accepted) + '</div>';
+      } else if (q.type === "match"){
+        var placements = answers[q.id] || {};
+        var correctCount = 0;
+        q.rows.forEach(function(r,i){ var t = tileByIdIn(q.tiles, placements[i]); if (t && t.label === r.correct) correctCount++; });
+        lines = q.rows.map(function(r,i){
+          var tile = tileByIdIn(q.tiles, placements[i]);
+          var ok = tile && tile.label === r.correct;
+          return '<div class="review-line"><span class="badge ' + (ok?"good":"bad") + '">' + (ok?"✓":"✕") + '</span><span>' + esc(r.label) + ': <strong>' + esc(tile ? tile.label : "—") + '</strong>' + (ok?"":(' — correct: <strong>' + esc(r.correct) + '</strong>')) + '</span></div>';
+        }).join("") + '<div class="hint">' + correctCount + ' / ' + q.rows.length + ' correct</div>';
+      } else if (q.type === "flow"){
+        var placements2 = answers[q.id] || {};
+        var seq = [];
+        for (var i = 0; i < q.tiles.length; i++){
+          var t2 = tileByIdIn(q.tiles, placements2[i]);
+          seq.push(t2 ? t2.label : null);
+        }
+        var reduced = seq.filter(function(l){ return l !== q.bonusLabel; });
+        var flowCorrect = 0;
+        q.correctOrder.forEach(function(l,i){ if (reduced[i] === l) flowCorrect++; });
+        var bonusOk = seq[q.bonusPosition - 1] === q.bonusLabel;
+        lines = '<div class="hint">' + flowCorrect + ' / ' + q.correctOrder.length + ' flavours correct, relative to each other.</div>' +
+          '<div class="hint">Correct order: ' + q.correctOrder.join(" → ") + '</div>' +
+          '<div class="review-line"><span class="badge ' + (bonusOk?"good":"bad") + '">' + (bonusOk?"✓":"✕") + '</span><span>Bonus — Mango in position ' + q.bonusPosition + (bonusOk ? " — got it!" : " — not quite") + '</span></div>';
+      }
+      return '<div class="review-item"><div class="review-q">' + esc(q.short) + '</div>' + lines + '</div>';
+    }).join("");
+
+    app.innerHTML =
+      '<div class="hero">' +
+        renderConfetti() +
+        renderBubbles() +
+        '<div class="kicker">Results</div>' +
+        '<h1 class="display">Nice one, ' + esc(resp.name) + '!</h1>' +
+        '<p>Here’s your total score for the aQuellé Trivia Challenge.</p>' +
+        renderWave() +
+      '</div>' +
+      '<div class="card">' +
+        '<div class="result-score"><span class="big" id="score-count">0</span> <span class="of">/ ' + totalMax + '</span>' +
+        '<div class="muted" style="margin-top:6px;">' + pct + '% correct</div></div>' +
+        '<div class="screenshot-note"><span class="emoji">📸</span><span>Screenshot this screen and send it to us.</span></div>' +
+      '</div>' +
+      '<div class="card"><h2 style="margin-top:0; font-size:17px;">Question by question</h2>' + review + '</div>';
+
+    animateCount(document.getElementById("score-count"), total, 900);
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
