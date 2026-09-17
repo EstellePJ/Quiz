@@ -130,7 +130,6 @@
   @keyframes optPop{ 0%{ transform:scale(1); } 45%{ transform:scale(1.035); } 100%{ transform:scale(1); } }
   .opt.selected .dot{ border-color:var(--brand-deep); }
   .opt.selected .dot::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--brand-deep); }
-  .swatch{ width:10px; height:10px; border-radius:50%; flex:none; display:inline-block; }
   .match-tray{ display:flex; flex-wrap:wrap; gap:8px; padding:14px; background:var(--surface-raised); border-radius:14px; margin-bottom:16px; min-height:44px; }
   .match-tile{
     padding:9px 14px; border-radius:999px; border:1.5px solid var(--border); background:var(--surface-card);
@@ -234,17 +233,17 @@
   ];
 
   var FLOW_TILES = [
-    { id:"Naartjie", label:"Naartjie", color:"#f2a341" },
-    { id:"Honey Melon", label:"Honey Melon", color:"#d8db6a" },
-    { id:"Strawberry", label:"Strawberry", color:"#d94f4f" },
-    { id:"Litchi", label:"Litchi", color:"#e8748f" },
-    { id:"Mango", label:"Mango", color:"#f2994a" },
-    { id:"Marula", label:"Marula", color:"#b07a3f" },
-    { id:"Granadilla", label:"Granadilla", color:"#e8a33d" },
-    { id:"Apple", label:"Apple", color:"#7cb342" },
-    { id:"Lemon", label:"Lemon", color:"#e3cf3f" },
-    { id:"Watermelon", label:"Watermelon", color:"#e8607a" },
-    { id:"Pineapple", label:"Pineapple", color:"#f0c419" }
+    { id:"Naartjie", label:"Naartjie" },
+    { id:"Honey Melon", label:"Honey Melon" },
+    { id:"Strawberry", label:"Strawberry" },
+    { id:"Litchi", label:"Litchi" },
+    { id:"Mzansi Mango", label:"Mzansi Mango" },
+    { id:"Marula", label:"Marula" },
+    { id:"Granadilla", label:"Granadilla" },
+    { id:"Apple", label:"Apple" },
+    { id:"Lemon", label:"Lemon" },
+    { id:"Watermelon", label:"Watermelon" },
+    { id:"Pineapple", label:"Pineapple" }
   ];
 
   var FLAVOUR_ORDER = ["Naartjie","Litchi","Strawberry","Granadilla","Lemon","Pineapple","Watermelon","Apple","Marula","Honey Melon"];
@@ -290,21 +289,21 @@
         { label:"ViV Power & Sports Drinks 500ml", correct:"8 months" }
       ],
       points:8 },
-    { id:"q9", type:"mcq", eyebrow:"Question 9 of 10", short:"Bottle plastic type",
-      text:"What type of plastic are aQuellé bottles made from?",
-      options:["PET1","HDPE","PVC","PP"],
-      correct:"PET1", points:1 },
+    { id:"q9", type:"mcq", eyebrow:"Question 9 of 10", short:"What kind of water is aQuellé",
+      text:"Not all waters are equal. aQuellé is a…",
+      options:["Natural Spring Water","Purified Water","Mineral Water","Tap Water"],
+      correct:"Natural Spring Water", points:1 },
     { id:"q10", type:"flow", eyebrow:"Question 10 of 10", short:"Sparkling flavour line-up",
-      text:"Drag all 11 Sparkling Flavoured flavours into the order they appear in the line-up — get Mango's spot exactly right for a bonus point.",
+      text:"Drag all 11 Sparkling Flavoured flavours into the order they appear in the line-up — get Mzansi Mango's spot exactly right for a bonus point.",
       tiles: FLOW_TILES,
       correctOrder: FLAVOUR_ORDER,
-      bonusLabel: "Mango",
+      bonusLabel: "Mzansi Mango",
       bonusPosition: 5,
       points:10 }
   ];
 
   var MAX_SCORE = QUESTIONS.reduce(function(s,q){ return s + q.points; }, 0);
-  var RESULT_KEY = "aquelle_trivia_result_v6";
+  var RESULT_KEY = "aquelle_trivia_result_v7";
 
   function esc(s){
     var d = document.createElement("div");
@@ -432,7 +431,7 @@
         renderBubbles() +
         '<div class="kicker">Team trivia</div>' +
         '<h1 class="display">aQuellé Trivia Challenge</h1>' +
-        '<p>10 questions on flavours, facts and figures from the aQuellé range. Takes about 5 minutes — screenshot your score at the end and send it to us.</p>' +
+        '<p>10 questions on flavours, facts and figures from the aQuellé range. Takes about 5 minutes — screenshot your score at the end and WhatsApp it to Clinton.</p>' +
         renderWave() +
       '</div>' +
       '<div class="card">' +
@@ -505,7 +504,7 @@
     var trayTiles = q.tiles.filter(function(t){ return !placedIds[t.id]; });
     var trayHtml = '<div class="match-tray">' + (trayTiles.length ? trayTiles.map(function(t){
       return '<div class="match-tile' + (selectedTileId === t.id ? " selected" : "") + '" data-tile-id="' + esc(t.id) + '">' +
-        (t.color ? ('<span class="swatch" style="background:' + t.color + '"></span>') : '') + esc(t.label) + '</div>';
+        esc(t.label) + '</div>';
     }).join("") : '<span class="match-tray-empty">All placed — tap a filled slot to swap one out.</span>') + '</div>';
 
     var slotsHtml;
@@ -519,7 +518,7 @@
       slotsHtml = '<div class="order-slots">' + q.tiles.map(function(_,i){
         var placedTile = tileByIdIn(q.tiles, placements[i]);
         return '<div class="order-slot drop-target' + (placedTile ? " filled" : "") + '" data-slot="' + i + '"><span class="num">' + (i+1) + '</span>' +
-          (placedTile ? ('<span style="flex:1; display:flex; align-items:center; gap:7px;">' + (placedTile.color ? ('<span class="swatch" style="background:' + placedTile.color + '"></span>') : '') + esc(placedTile.label) + '</span>') : '<span class="muted">Drop here</span>') +
+          (placedTile ? ('<span style="flex:1; display:flex; align-items:center; gap:7px;">' + esc(placedTile.label) + '</span>') : '<span class="muted">Drop here</span>') +
           '</div>';
       }).join("") + '</div>';
     }
@@ -643,8 +642,13 @@
         ghost.style.pointerEvents = "none";
         ghost.style.zIndex = "50";
         ghost.style.opacity = "0.92";
+        ghost.style.transition = "none"; // don't inherit .match-tile's transform transition — it made the ghost visibly slide in from (0,0) on pickup
+        ghost.style.margin = "0";
         ghost.style.width = el.offsetWidth + "px";
+        ghost.style.height = el.offsetHeight + "px";
         ghost.style.left = "0px"; ghost.style.top = "0px";
+        // Set the starting position before the element is ever painted, so it never appears at the top-left corner first.
+        ghost.style.transform = "translate(" + (ev.clientX - el.offsetWidth/2) + "px, " + (ev.clientY - el.offsetHeight/2) + "px)";
         document.body.appendChild(ghost);
         el.style.opacity = "0.3";
       }
@@ -749,7 +753,7 @@
         var bonusOk = seq[q.bonusPosition - 1] === q.bonusLabel;
         lines = '<div class="hint">' + flowCorrect + ' / ' + q.correctOrder.length + ' flavours correct, relative to each other.</div>' +
           '<div class="hint">Correct order: ' + q.correctOrder.join(" → ") + '</div>' +
-          '<div class="review-line"><span class="badge ' + (bonusOk?"good":"bad") + '">' + (bonusOk?"✓":"✕") + '</span><span>Bonus — Mango in position ' + q.bonusPosition + (bonusOk ? " — got it!" : " — not quite") + '</span></div>';
+          '<div class="review-line"><span class="badge ' + (bonusOk?"good":"bad") + '">' + (bonusOk?"✓":"✕") + '</span><span>Bonus — ' + esc(q.bonusLabel) + ' in position ' + q.bonusPosition + (bonusOk ? " — got it!" : " — not quite") + '</span></div>';
       }
       return '<div class="review-item"><div class="review-q">' + esc(q.short) + '</div>' + lines + '</div>';
     }).join("");
@@ -766,7 +770,7 @@
       '<div class="card">' +
         '<div class="result-score"><span class="big" id="score-count">0</span> <span class="of">/ ' + totalMax + '</span>' +
         '<div class="muted" style="margin-top:6px;">' + pct + '% correct</div></div>' +
-        '<div class="screenshot-note"><span class="emoji">📸</span><span>Screenshot this screen and send it to us.</span></div>' +
+        '<div class="screenshot-note"><span class="emoji">📸</span><span>Screenshot this screen and WhatsApp it to Clinton.</span></div>' +
       '</div>' +
       '<div class="card"><h2 style="margin-top:0; font-size:17px;">Question by question</h2>' + review + '</div>';
 
