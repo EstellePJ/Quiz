@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="color-scheme" content="light">
 <title>aQuellé Trivia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,26 +19,7 @@
     --border:rgba(74,7,16,0.14); --shadow:rgba(74,7,16,0.16);
     --pop-pink:#ff4d6d; --pop-yellow:#ffce3d; --pop-purple:#5c1030; --pop-lime:#8bc34a;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --surface:#170709; --surface-card:#26090e; --surface-raised:#34101a;
-      --ink:#fbe9ea; --ink-secondary:#d9a8ac; --ink-muted:#9c7276;
-      --brand-deep:#ff9aa6; --on-brand-deep:#340509;
-      --brand-mid:#ff6b7a; --brand-bright:#ff5a72;
-      --accent-fizz:#ffd166; --on-fizz:#2a1206;
-      --good:#3ad169; --bad:#ff6b6b;
-      --border:rgba(255,255,255,0.14); --shadow:rgba(0,0,0,0.4);
-    }
-  }
-  :root[data-theme="dark"]{
-    --surface:#170709; --surface-card:#26090e; --surface-raised:#34101a;
-    --ink:#fbe9ea; --ink-secondary:#d9a8ac; --ink-muted:#9c7276;
-    --brand-deep:#ff9aa6; --on-brand-deep:#340509;
-    --brand-mid:#ff6b7a; --brand-bright:#ff5a72;
-    --accent-fizz:#ffd166; --on-fizz:#2a1206;
-    --good:#3ad169; --bad:#ff6b6b;
-    --border:rgba(255,255,255,0.14); --shadow:rgba(0,0,0,0.4);
-  }
+  /* Always use the light colour scheme — ignore the device/browser dark mode setting. */
   *{box-sizing:border-box;}
   body{
     background:var(--surface); color:var(--ink);
