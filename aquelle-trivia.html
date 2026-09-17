@@ -4,45 +4,48 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>aQuellé Trivia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style id="quiz-style">
   :root{
-    --surface:#f4faf9; --surface-card:#ffffff; --surface-raised:#eef7f6;
-    --ink:#0b1f2a; --ink-secondary:#45606b; --ink-muted:#7c9099;
-    --brand-deep:#0b3d5c; --on-brand-deep:#ffffff;
-    --brand-mid:#1c7fa6; --brand-bright:#1fb0c0;
-    --accent-fizz:#eb6834; --on-fizz:#ffffff;
-    --good:#0ca30c; --bad:#d03b3b;
-    --border:rgba(11,31,42,0.12); --shadow:rgba(11,61,92,0.10);
-    --pop-pink:#ef5da8; --pop-yellow:#ffce3d; --pop-purple:#7c5cf2; --pop-lime:#8fd13f;
+    --surface:#fcf1e9; --surface-card:#ffffff; --surface-raised:#fbe8de;
+    --ink:#2c0b10; --ink-secondary:#7a3a3f; --ink-muted:#a9878a;
+    --brand-deep:#4a0710; --on-brand-deep:#ffffff;
+    --brand-mid:#8c1220; --brand-bright:#e2263c;
+    --accent-fizz:#f2b705; --on-fizz:#3a1400;
+    --good:#1f9d55; --bad:#d0323f;
+    --border:rgba(74,7,16,0.14); --shadow:rgba(74,7,16,0.16);
+    --pop-pink:#ff4d6d; --pop-yellow:#ffce3d; --pop-purple:#5c1030; --pop-lime:#8bc34a;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --surface:#0c1718; --surface-card:#142226; --surface-raised:#1a2c30;
-      --ink:#eef6f7; --ink-secondary:#a9c0c6; --ink-muted:#71898f;
-      --brand-deep:#57bcdd; --on-brand-deep:#052027;
-      --brand-mid:#5fb8d6; --brand-bright:#3fd0dc;
-      --accent-fizz:#f2895c; --on-fizz:#2a1206;
-      --good:#3ad13a; --bad:#e66767;
-      --border:rgba(255,255,255,0.14); --shadow:rgba(0,0,0,0.35);
+      --surface:#170709; --surface-card:#26090e; --surface-raised:#34101a;
+      --ink:#fbe9ea; --ink-secondary:#d9a8ac; --ink-muted:#9c7276;
+      --brand-deep:#ff9aa6; --on-brand-deep:#340509;
+      --brand-mid:#ff6b7a; --brand-bright:#ff5a72;
+      --accent-fizz:#ffd166; --on-fizz:#2a1206;
+      --good:#3ad169; --bad:#ff6b6b;
+      --border:rgba(255,255,255,0.14); --shadow:rgba(0,0,0,0.4);
     }
   }
   :root[data-theme="dark"]{
-    --surface:#0c1718; --surface-card:#142226; --surface-raised:#1a2c30;
-    --ink:#eef6f7; --ink-secondary:#a9c0c6; --ink-muted:#71898f;
-    --brand-deep:#57bcdd; --on-brand-deep:#052027;
-    --brand-mid:#5fb8d6; --brand-bright:#3fd0dc;
-    --accent-fizz:#f2895c; --on-fizz:#2a1206;
-    --good:#3ad13a; --bad:#e66767;
-    --border:rgba(255,255,255,0.14); --shadow:rgba(0,0,0,0.35);
+    --surface:#170709; --surface-card:#26090e; --surface-raised:#34101a;
+    --ink:#fbe9ea; --ink-secondary:#d9a8ac; --ink-muted:#9c7276;
+    --brand-deep:#ff9aa6; --on-brand-deep:#340509;
+    --brand-mid:#ff6b7a; --brand-bright:#ff5a72;
+    --accent-fizz:#ffd166; --on-fizz:#2a1206;
+    --good:#3ad169; --bad:#ff6b6b;
+    --border:rgba(255,255,255,0.14); --shadow:rgba(0,0,0,0.4);
   }
   *{box-sizing:border-box;}
   body{
     background:var(--surface); color:var(--ink);
-    font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-family:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif;
     padding:0 16px; padding-block:20px 48px;
     display:flex; justify-content:center;
   }
-  h1,h2,h3,.display{ font-family:"Baloo 2","Manrope",system-ui,sans-serif; text-wrap:balance; }
+  h1,h2,h3,.display{ font-family:"Anton","Poppins",system-ui,sans-serif; font-weight:400; text-wrap:balance; }
   #app{ width:100%; max-width:560px; }
   .hero{
     background:linear-gradient(120deg,var(--brand-deep),var(--brand-mid) 45%,var(--brand-bright) 80%,var(--accent-fizz));
@@ -59,11 +62,12 @@
     animation:bubbleUp linear infinite;
   }
   .hero .kicker{
-    font-size:12px; letter-spacing:.08em; text-transform:uppercase; font-weight:800;
-    display:inline-block; background:rgba(255,255,255,.22); padding:5px 12px; border-radius:999px;
+    font-family:"Anton","Poppins",sans-serif; font-weight:400;
+    font-size:13px; letter-spacing:.14em; text-transform:uppercase;
+    display:inline-block; color:var(--accent-fizz); border-bottom:2px solid var(--accent-fizz); padding-bottom:5px;
     position:relative; z-index:1;
   }
-  .hero h1{ font-size:30px; margin:10px 0 8px; line-height:1.1; position:relative; z-index:1; }
+  .hero h1{ font-size:32px; margin:12px 0 8px; line-height:1.05; position:relative; z-index:1; }
   .hero p{ margin:0; opacity:.94; font-size:15px; line-height:1.5; position:relative; z-index:1; }
   .wave{ display:block; width:100%; height:28px; margin-top:18px; position:relative; z-index:1; }
   .card{
@@ -187,8 +191,8 @@
   .hint{ font-size:13px; color:var(--ink-muted); margin-top:10px; line-height:1.5; }
   .result-score{ text-align:center; padding:14px 0 4px; }
   .result-score .big{
-    font-size:56px; font-weight:800; font-family:"Baloo 2",sans-serif;
-    background:linear-gradient(120deg,var(--brand-deep),var(--brand-mid),var(--pop-purple));
+    font-size:56px; font-weight:400; font-family:"Anton","Poppins",sans-serif;
+    background:linear-gradient(120deg,var(--brand-deep),var(--brand-mid),var(--accent-fizz));
     -webkit-background-clip:text; background-clip:text; color:transparent;
     line-height:1; display:inline-block; animation:scorePop .5s cubic-bezier(.28,1.6,.5,1) both;
   }
@@ -281,7 +285,7 @@
     { id:"q5", type:"textlist", eyebrow:"Question 5 of 10", short:"Berry flavours",
       text:"Name 5 flavours with the word “berry” in the name.",
       count:5,
-      accepted:[["Pinberry"],["Berry Blue"],["Strawberry"],["Cranberry Burst","Cranberry"],["Blueberry-Raspberry"]],
+      accepted:[["Pineberry"],["Berry Blue"],["Strawberry"],["Cranberry Burst","Cranberry"],["Blueberry-Raspberry"]],
       points:5 },
     { id:"q6", type:"mcq", eyebrow:"Question 6 of 10", short:"Fastest growing SKU",
       text:"Which SKU is the fastest growing?",
