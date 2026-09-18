@@ -715,49 +715,6 @@
     var total = resp.score + (resp.bonus || 0);
     var totalMax = resp.maxScore + 1;
     var pct = Math.round((total / totalMax) * 100);
-    var answers = resp.answers || {};
-
-    var review = QUESTIONS.map(function(q){
-      var lines = "";
-      if (q.type === "mcq" || q.type === "text"){
-        var got = answers[q.id];
-        var ok = q.type === "text" ? (normText(got) === normText(q.correct)) : (got === q.correct);
-        lines = '<div class="review-line"><span class="badge ' + (ok?"good":"bad") + '">' + (ok?"✓":"✕") + '</span><span>Your answer: <strong>' + esc(got||"—") + '</strong>' + (ok?"":(' — correct: <strong>' + esc(q.correct) + '</strong>')) + '</span></div>';
-      } else if (q.type === "textlist"){
-        var vals = (answers[q.id] || []).filter(function(v){ return v && v.trim(); });
-        var matchedIdx = matchedAcceptedIndexes(q.accepted, vals);
-        lines = (vals.length ?
-          ('<div class="review-line"><span>Your answers: <strong>' + esc(vals.join(", ")) + '</strong></span></div>') :
-          ('<div class="review-line"><span>Your answers: <strong>—</strong></span></div>')) +
-          '<div class="hint">' + matchedIdx.length + ' / ' + q.accepted.length + ' correct.</div>' +
-          '<div class="hint">Accepted answers: ' + acceptedDisplay(q.accepted) + '</div>';
-      } else if (q.type === "match"){
-        var placements = answers[q.id] || {};
-        var correctCount = 0;
-        q.rows.forEach(function(r,i){ var t = tileByIdIn(q.tiles, placements[i]); if (t && t.label === r.correct) correctCount++; });
-        lines = q.rows.map(function(r,i){
-          var tile = tileByIdIn(q.tiles, placements[i]);
-          var ok = tile && tile.label === r.correct;
-          return '<div class="review-line"><span class="badge ' + (ok?"good":"bad") + '">' + (ok?"✓":"✕") + '</span><span>' + esc(r.label) + ': <strong>' + esc(tile ? tile.label : "—") + '</strong>' + (ok?"":(' — correct: <strong>' + esc(r.correct) + '</strong>')) + '</span></div>';
-        }).join("") + '<div class="hint">' + correctCount + ' / ' + q.rows.length + ' correct</div>';
-      } else if (q.type === "flow"){
-        var placements2 = answers[q.id] || {};
-        var seq = [];
-        for (var i = 0; i < q.tiles.length; i++){
-          var t2 = tileByIdIn(q.tiles, placements2[i]);
-          seq.push(t2 ? t2.label : null);
-        }
-        var reduced = seq.filter(function(l){ return l !== q.bonusLabel; });
-        var flowCorrect = 0;
-        q.correctOrder.forEach(function(l,i){ if (reduced[i] === l) flowCorrect++; });
-        var bonusOk = seq[q.bonusPosition - 1] === q.bonusLabel;
-        lines = '<div class="hint">' + flowCorrect + ' / ' + q.correctOrder.length + ' flavours correct, relative to each other.</div>' +
-          '<div class="hint">Correct order: ' + q.correctOrder.join(" → ") + '</div>' +
-          '<div class="review-line"><span class="badge ' + (bonusOk?"good":"bad") + '">' + (bonusOk?"✓":"✕") + '</span><span>Bonus — ' + esc(q.bonusLabel) + ' in position ' + q.bonusPosition + (bonusOk ? " — got it!" : " — not quite") + '</span></div>';
-      }
-      return '<div class="review-item"><div class="review-q">' + esc(q.short) + '</div>' + lines + '</div>';
-    }).join("");
-
     app.innerHTML =
       '<div class="hero">' +
         renderConfetti() +
@@ -771,8 +728,7 @@
         '<div class="result-score"><span class="big" id="score-count">0</span> <span class="of">/ ' + totalMax + '</span>' +
         '<div class="muted" style="margin-top:6px;">' + pct + '% correct</div></div>' +
         '<div class="screenshot-note"><span class="emoji">📸</span><span>Screenshot this screen and WhatsApp it to Clinton.</span></div>' +
-      '</div>' +
-      '<div class="card"><h2 style="margin-top:0; font-size:17px;">Question by question</h2>' + review + '</div>';
+      '</div>';
 
     animateCount(document.getElementById("score-count"), total, 900);
   }
